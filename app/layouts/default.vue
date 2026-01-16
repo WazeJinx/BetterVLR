@@ -167,9 +167,9 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useNuxtApp } from "#app";
+import { usePWAInstall } from "../plugins/pwa-install.client";
 
-const showInstallButton = ref(false);
-let promptInstall;
+const { showInstallButton, promptInstall } = usePWAInstall();
 
 const installApp = async () => {
   if (!promptInstall) return;

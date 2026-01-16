@@ -1,28 +1,24 @@
-// /plugins/pwa-install.client.js
-import { ref } from "vue";
+let deferredPrompt = null;
 
-export default defineNuxtPlugin((nuxtApp) => {
-  const deferredPrompt = ref(null);
+export const usePWAInstall = () => {
   const showInstallButton = ref(false);
 
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault(); // prevent default mini banner
-    deferredPrompt.value = e;
-    showInstallButton.value = true;
-  });
+  if (process.client) {
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault(); // prevent browser mini-banner
+      deferredPrompt = e;
+      showInstallButton.value = true;
+    });
+  }
 
   const promptInstall = async () => {
-    if (!deferredPrompt.value) return;
-    deferredPrompt.value.prompt();
-    const choice = await deferredPrompt.value.userChoice;
-    deferredPrompt.value = null;
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choiceResult = await deferredPrompt.userChoice;
+    deferredPrompt = null;
     showInstallButton.value = false;
-    return choice.outcome;
+    return choiceResult.outcome;
   };
 
-  // Provide globally
-  nuxtApp.provide("pwaInstall", {
-    showInstallButton,
-    promptInstall,
-  });
-});
+  return { showInstallButton, promptInstall };
+};
