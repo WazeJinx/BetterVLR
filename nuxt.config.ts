@@ -58,7 +58,7 @@ export default defineNuxtConfig({
       theme_color: "#0A7AFF",
       icons: [
         {
-          src: "/yt.png",
+          src: "/betterVal-144.png",
           sizes: "144x144",
           type: "image/png",
         },
@@ -70,6 +70,13 @@ export default defineNuxtConfig({
     devOptions: {
       enabled: true,
       type: "module",
+    },
+  },
+
+  nitro: {
+    replace: {
+      "globalThis.navigator": "undefined",
+      "global.navigator": "undefined",
     },
   },
 

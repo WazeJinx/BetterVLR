@@ -5,6 +5,89 @@
       class="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm md:hidden"
       @click="isCollapsed = true"
     />
+
+    <!-- iOS Install Instructions Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showIOSInstructions"
+        class="fixed inset-0 z-50 flex items-end justify-center md:items-center bg-black/30 backdrop-blur-sm"
+        @click="showIOSInstructions = false"
+      >
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="translate-y-full md:translate-y-0 md:scale-95 md:opacity-0"
+          enter-to-class="translate-y-0 md:scale-100 md:opacity-100"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="translate-y-0 md:scale-100 md:opacity-100"
+          leave-to-class="translate-y-full md:translate-y-0 md:scale-95 md:opacity-0"
+        >
+          <div
+            v-if="showIOSInstructions"
+            class="bg-white dark:bg-darkSurface rounded-t-3xl md:rounded-2xl p-6 max-w-md w-full shadow-2xl mx-4 mb-0 md:mb-4"
+            @click.stop
+          >
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold dark:text-darkText">
+                Install BetterVLR
+              </h3>
+              <button
+                @click="showIOSInstructions = false"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-darkBg rounded-lg transition"
+              >
+                <UIIcon
+                  icon="material-symbols:close"
+                  class="text-xl dark:text-darkText"
+                />
+              </button>
+            </div>
+
+            <div class="space-y-4 text-gray-700 dark:text-darkSubText">
+              <p class="text-sm">To install this app on your iPhone:</p>
+              <ol class="space-y-3 text-sm">
+                <li class="flex gap-3">
+                  <span class="font-semibold">1.</span>
+                  <div class="flex-1">
+                    <span class="inline-flex items-center gap-1 flex-wrap">
+                      Tap the Share button
+                      <UIIcon
+                        icon="material-symbols:ios-share"
+                        class="text-blue-500 text-lg"
+                      />
+                      at the bottom of Safari
+                    </span>
+                  </div>
+                </li>
+                <li class="flex gap-3">
+                  <span class="font-semibold">2.</span>
+                  <div class="flex-1">
+                    <span class="inline-flex items-center gap-1 flex-wrap">
+                      Scroll down and tap
+                      <UIIcon
+                        icon="material-symbols:add-box-outline"
+                        class="text-lg"
+                      />
+                      "Add to Home Screen"
+                    </span>
+                  </div>
+                </li>
+                <li class="flex gap-3">
+                  <span class="font-semibold">3.</span>
+                  <span>Tap "Add" in the top right corner</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+
     <header
       v-if="isCollapsed"
       class="fixed top-0 left-0 right-0 z-30 h-14 flex items-center gap-3 px-4 !bg-white/50 dark:!bg-darkSurface/70 backdrop-blur-xl rounded-b-2xl shadow-lg md:hidden"
@@ -25,25 +108,26 @@
           currentTitle
         }}</span>
       </div>
-      <button
-        v-if="showInstallButton && isSafari"
-        @click="alert('Tap the Share button then Add to Home Screen')"
-      >
-        Install App
-      </button>
 
-      <button v-if="showInstallButton" @click="installApp">Install App</button>
-      <div v-if="!isStandalone && /iPhone|iPad|iPod/.test(navigator.userAgent)">
-        <p>
-          To install this app on your device, tap the "Share" button and then
-          "Add to Home Screen".
-        </p>
-      </div>
-      <div class="flex flex-row ml-auto">
+      <div class="flex flex-row ml-auto gap-1">
+        <!-- Install Button -->
+        <button
+          v-if="showInstallButton"
+          @click="handleInstall"
+          class="p-2 rounded-lg transition"
+          title="Install App"
+        >
+          <UIIcon
+            icon="material-symbols:download"
+            class="text-gray-600 dark:text-darkText text-[20px]"
+          />
+        </button>
+
+        <!-- Dark Mode Toggle -->
         <button
           @click="toggleDarkMode"
-          class="flex w-fit items-center gap-3 p-2 rounded-xl transition-all"
-          :class="[isCollapsed ? 'pl-3 pt-0 pb-0' : '']"
+          class="p-2 justify-center items-center flex flex-col rounded-lg transition"
+          title="Toggle Dark Mode"
         >
           <span
             class="inline-block transition-transform duration-500 ease-in-out"
@@ -51,7 +135,7 @@
           >
             <UIIcon
               :icon="themeIcon"
-              class="text-gray-600 dark:text-darkText text-[20px] w-9 h-9"
+              class="text-gray-600 dark:text-darkText text-[20px]"
             />
           </span>
         </button>
@@ -179,24 +263,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute, useNuxtApp } from "#app";
-import { usePWAInstall } from "../plugins/pwa-install.client";
+import { useRoute } from "#app";
 
-const { showInstallButton, promptInstall } = usePWAInstall();
-
-const isStandalone = ref(false);
-const isSafari = ref(false);
-
-const installApp = async () => {
-  if (!promptInstall) return;
-  const result = await promptInstall();
-  console.log("Install result:", result);
-};
+const showInstallButton = ref(false);
+const showIOSInstructions = ref(false);
+let deferredPrompt = null;
 
 const route = useRoute();
 const isDark = ref(false);
 const rotation = ref(0);
-
 const isCollapsed = ref(false);
 
 const themeIcon = computed(() =>
@@ -230,6 +305,40 @@ const onNavItemClick = () => {
   }
 };
 
+const isIOS = () => {
+  if (typeof window === "undefined") return false;
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent);
+};
+
+const isInStandaloneMode = () => {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+};
+
+const handleInstall = async () => {
+  // For iOS devices, show instructions
+  if (isIOS()) {
+    showIOSInstructions.value = true;
+    return;
+  }
+
+  // For other platforms, use the standard install prompt
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+
+  if (outcome === "accepted") {
+    showInstallButton.value = false;
+  }
+
+  deferredPrompt = null;
+};
+
 const toggleDarkMode = () => {
   rotation.value += 180;
   isDark.value = !isDark.value;
@@ -244,48 +353,34 @@ const toggleDarkMode = () => {
 };
 
 onMounted(() => {
-  isStandalone.value =
-    (window.matchMedia &&
-      window.matchMedia("(display-mode: standalone)").matches) ||
-    window.navigator.standalone === true;
-
-  isSafari.value = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-  if (!isStandalone.value) {
-    if (isSafari.value) {
-      showInstallButton.value = true;
-    } else {
-      const nuxtApp = useNuxtApp();
-      showInstallButton.value =
-        nuxtApp.$pwaInstall?.showInstallButton.value ?? false;
-    }
-  }
-  const nuxtApp = useNuxtApp();
-  if (nuxtApp.$pwaInstall) {
-    watch(
-      () => nuxtApp.$pwaInstall.showInstallButton.value,
-      (newVal) => {
-        showInstallButton.value = newVal;
-      },
-      { immediate: true }
-    );
-
-    promptInstall = nuxtApp.$pwaInstall.promptInstall;
-  }
+  // Collapse sidebar on small screens
   if (window.innerWidth < 768) {
     isCollapsed.value = true;
   }
 
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") {
-    isDark.value = true;
-    document.documentElement.classList.add("dark");
-    rotation.value = 180;
-  } else {
-    isDark.value = false;
-    document.documentElement.classList.remove("dark");
-    rotation.value = 0;
+  // Check if already installed
+  if (isInStandaloneMode()) {
+    showInstallButton.value = false;
+    return;
   }
+
+  // For iOS devices not in standalone mode, show install button
+  if (isIOS()) {
+    showInstallButton.value = true;
+  }
+
+  // Listen for the beforeinstallprompt event (Chrome, Edge, Android)
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallButton.value = true;
+  });
+
+  // Listen for successful installation
+  window.addEventListener("appinstalled", () => {
+    showInstallButton.value = false;
+    deferredPrompt = null;
+  });
 });
 </script>
 
