@@ -58,9 +58,45 @@ export default defineNuxtConfig({
       theme_color: "#0A7AFF",
       icons: [
         {
+          src: "/betterVal-48.png",
+          sizes: "48x48",
+          type: "image/png",
+        },
+        {
+          src: "/betterVal-96.png",
+          sizes: "96x96",
+          type: "image/png",
+        },
+        {
           src: "/betterVal-144.png",
           sizes: "144x144",
           type: "image/png",
+        },
+        {
+          src: "/betterVal-180.png",
+          sizes: "180x180",
+          type: "image/png",
+        },
+        {
+          src: "/betterVal-512.png",
+          sizes: "512x512",
+          type: "image/png",
+        },
+      ],
+      screenshots: [
+        {
+          src: "/mobile.png",
+          sizes: "397x844",
+          type: "image/png",
+          form_factor: "narrow",
+          // mobile default
+        },
+        {
+          src: "/desktop.png",
+          sizes: "1920x1080",
+          type: "image/png",
+          form_factor: "wide",
+          // desktop default
         },
       ],
     },
@@ -70,13 +106,6 @@ export default defineNuxtConfig({
     devOptions: {
       enabled: true,
       type: "module",
-    },
-  },
-
-  nitro: {
-    replace: {
-      "globalThis.navigator": "undefined",
-      "global.navigator": "undefined",
     },
   },
 
