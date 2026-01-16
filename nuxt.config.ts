@@ -12,14 +12,50 @@ export default defineNuxtConfig({
   ],
 
   css: ["~/assets/css/main.css"],
+  tailwindcss: {
+    config: {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              "-apple-system",
+              "BlinkMacSystemFont",
+              '"Segoe UI"',
+              "Roboto",
+              "Oxygen",
+              "Ubuntu",
+              "Cantarell",
+              '"Fira Sans"',
+              '"Droid Sans"',
+              '"Helvetica Neue"',
+              "sans-serif",
+            ],
+          },
+          colors: {
+            darkBg: "#1C1C1E",
+            darkSurface: "#2C2C2E",
+            darkText: "#FFFFFF",
+            darkSubText: "#AEAEB2",
+            darkBorder: "#3A3A3C",
+            appleBlue: "#0A84FF",
+            appleHover: "#1C1C1E/5",
+          },
+        },
+      },
+    },
+  },
 
   app: {
     head: {
-      title: "Val-UI",
-      htmlAttrs: {
-        lang: "en",
-      },
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      title: "BetterVLR",
+      link: [
+        {
+          rel: "icon",
+          type: "image/x-icon",
+          href: "/favicon.ico",
+        },
+      ],
     },
   },
 });
