@@ -25,7 +25,20 @@
           currentTitle
         }}</span>
       </div>
+      <button
+        v-if="showInstallButton && isSafari"
+        @click="alert('Tap the Share button then Add to Home Screen')"
+      >
+        Install App
+      </button>
+
       <button v-if="showInstallButton" @click="installApp">Install App</button>
+      <div v-if="!isStandalone && /iPhone|iPad|iPod/.test(navigator.userAgent)">
+        <p>
+          To install this app on your device, tap the "Share" button and then
+          "Add to Home Screen".
+        </p>
+      </div>
       <div class="flex flex-row ml-auto">
         <button
           @click="toggleDarkMode"
@@ -171,6 +184,14 @@ import { usePWAInstall } from "../plugins/pwa-install.client";
 
 const { showInstallButton, promptInstall } = usePWAInstall();
 
+const isStandalone =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+console.log("Running as PWA:", isStandalone);
+
 const installApp = async () => {
   if (!promptInstall) return;
   const result = await promptInstall();
@@ -228,6 +249,14 @@ const toggleDarkMode = () => {
 };
 
 onMounted(() => {
+  if (!isStandalone) {
+    if (isSafari) {
+      showInstallButton.value = true;
+    } else {
+      showInstallButton.value =
+        nuxtApp.$pwaInstall?.showInstallButton.value ?? false;
+    }
+  }
   const nuxtApp = useNuxtApp();
   if (nuxtApp.$pwaInstall) {
     watch(
