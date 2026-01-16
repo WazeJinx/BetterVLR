@@ -2,6 +2,7 @@
   <div
     class="min-h-screen bg-white dark:bg-darkBg transition-colors duration-300"
   >
+    <VitePwaManifest />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
