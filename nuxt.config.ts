@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/scripts",
     "@nuxtjs/tailwindcss",
+    "@vite-pwa/nuxt",
   ],
 
   css: ["~/assets/css/main.css"],
@@ -43,6 +44,30 @@ export default defineNuxtConfig({
           },
         },
       },
+    },
+  },
+
+  pwa: {
+    manifest: {
+      name: "BetterVLR",
+      short_name: "BetterVLR",
+      lang: "fa",
+      start_url: "/",
+      display: "standalone",
+      background_color: "#0A7AFF",
+      theme_color: "#0A7AFF",
+      icons: [
+        {
+          src: "/icon-192.png",
+          sizes: "192x192",
+          type: "image/png",
+        },
+        {
+          src: "/icon-512.png",
+          sizes: "512x512",
+          type: "image/png",
+        },
+      ],
     },
   },
 

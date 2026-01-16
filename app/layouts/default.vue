@@ -25,6 +25,7 @@
           currentTitle
         }}</span>
       </div>
+      <button v-if="showInstallButton" @click="installApp">Install App</button>
       <div class="flex flex-row ml-auto">
         <button
           @click="toggleDarkMode"
@@ -164,8 +165,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useRoute } from "#app";
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useNuxtApp } from "#app";
+
+const showInstallButton = ref(false);
+let promptInstall;
+
+const installApp = async () => {
+  if (!promptInstall) return;
+  const result = await promptInstall();
+  console.log("Install result:", result);
+};
 
 const route = useRoute();
 const isDark = ref(false);
@@ -218,6 +228,18 @@ const toggleDarkMode = () => {
 };
 
 onMounted(() => {
+  const nuxtApp = useNuxtApp();
+  if (nuxtApp.$pwaInstall) {
+    watch(
+      () => nuxtApp.$pwaInstall.showInstallButton.value,
+      (newVal) => {
+        showInstallButton.value = newVal;
+      },
+      { immediate: true }
+    );
+
+    promptInstall = nuxtApp.$pwaInstall.promptInstall;
+  }
   if (window.innerWidth < 768) {
     isCollapsed.value = true;
   }
