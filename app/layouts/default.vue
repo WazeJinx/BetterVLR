@@ -184,13 +184,8 @@ import { usePWAInstall } from "../plugins/pwa-install.client";
 
 const { showInstallButton, promptInstall } = usePWAInstall();
 
-const isStandalone =
-  window.matchMedia("(display-mode: standalone)").matches ||
-  window.navigator.standalone === true;
-
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-console.log("Running as PWA:", isStandalone);
+const isStandalone = ref(false);
+const isSafari = ref(false);
 
 const installApp = async () => {
   if (!promptInstall) return;
@@ -249,10 +244,18 @@ const toggleDarkMode = () => {
 };
 
 onMounted(() => {
-  if (!isStandalone) {
-    if (isSafari) {
+  isStandalone.value =
+    (window.matchMedia &&
+      window.matchMedia("(display-mode: standalone)").matches) ||
+    window.navigator.standalone === true;
+
+  isSafari.value = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if (!isStandalone.value) {
+    if (isSafari.value) {
       showInstallButton.value = true;
     } else {
+      const nuxtApp = useNuxtApp();
       showInstallButton.value =
         nuxtApp.$pwaInstall?.showInstallButton.value ?? false;
     }
