@@ -1,4 +1,5 @@
-# val ui
+# BetterVLR
+A better VLR using NuxtJS
 jus frontend for scraping vlr shit
 
 # Nuxt Minimal Starter
