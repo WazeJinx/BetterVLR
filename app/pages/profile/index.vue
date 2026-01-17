@@ -1,30 +1,33 @@
 <template>
   <div
-    class="flex flex-col bg-white min-h-screen text-black justify-center items-center"
+    class="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-darkBg text-black dark:text-darkText px-6 text-center"
   >
-    <UIIcon
-      icon="material-symbols:home"
-      custom-class="text-gray-500 text-[90px]"
-    />
-    <span class="text-2xl font-bold">Profile</span>
-    <div class="py-6">
+    <!-- Glow accent -->
+    <!-- <div
+      class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(0,189,167,0.15),transparent_60%)]"
+    /> -->
+
+    <!-- Content -->
+    <div class="relative z-10 max-w-md">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Profile</h1>
+
+      <p class="text-sm md:text-base text-gray-600 dark:text-darkSubText mb-6">
+        Not gonna have one soon, just for aesthetics
+      </p>
+
       <NuxtLink
         to="/"
-        class="flex flex-row border rounded-lg bg-gray-300 min-w-[100px] hover:cursor-pointer text-center justify-center text-md font-medium py-2"
+        class="inline-flex items-center justify-center rounded-lg px-5 py-2.5 bg-primary text-gray-600 dark:text-darkSubText text-sm font-medium hover:opacity-90 transition"
       >
-        Back
+        Back to Dashboard
       </NuxtLink>
     </div>
-
-    <span class="text-2xl font-bold">NuxtJs + Tailwind + Icon</span>
-    <span class="text-md font-medium">- marwannsaz -</span>
   </div>
 </template>
+
 <script setup>
 definePageMeta({
-  title: "results",
+  title: "Profile",
   layout: "default",
 });
 </script>
-
-<style scoped></style>

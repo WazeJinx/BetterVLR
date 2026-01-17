@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-screen flex flex-col bg-white dark:bg-darkBg text-black dark:text-darkText transition-colors duration-300 p-6"
+    class="min-h-screen flex flex-col bg-white dark:bg-darkBg text-black dark:text-darkText transition-colors duration-300 p-6"
   >
     <!-- Dashboard Header -->
     <!-- <div
@@ -38,8 +38,7 @@
     </div>
 
     <!-- Overview Cards -->
-    <div v-if="false" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <!-- News Card -->
+    <!-- <div v-if="false" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <UICard
         class="bg-[#F5F5F7] dark:bg-darkSurface flex flex-col justify-between transition-transform"
       >
@@ -56,7 +55,6 @@
         </div>
       </UICard>
 
-      <!-- Matches Card -->
       <UICard
         class="bg-[#F5F5F7] dark:bg-darkSurface flex flex-col justify-between transition-transform"
       >
@@ -74,7 +72,6 @@
         </div>
       </UICard>
 
-      <!-- Results Card -->
       <UICard
         class="bg-[#F5F5F7] dark:bg-darkSurface flex flex-col justify-between transition-transform"
       >
@@ -90,12 +87,100 @@
           </NuxtLink>
         </div>
       </UICard>
-    </div>
+    </div> -->
 
     <!-- Highlights / Recent Activity -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
       <UICard
-        class="bg-[#F5F5F7] dark:bg-darkSurface p-4 flex flex-col h-full min-h-0"
+        class="bg-[#F5F5F7] dark:bg-darkSurface p-4 flex flex-col h-full min-h-[420px] lg:min-h-[520px]"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-semibold text-lg dark:text-darkText">
+            Latest Matches
+          </h3>
+        </div>
+
+        <div v-show="matchesPending" class="text-sm text-gray-500">
+          Loading matches...
+        </div>
+
+        <div v-show="matchesError" class="text-sm text-red-500">
+          Failed to load matches
+        </div>
+
+        <div
+          v-show="!matchesPending && !matchesError"
+          class="flex-1 min-h-0 overflow-y-auto pr-1 hide-scrollbar"
+        >
+          <ul class="space-y-3">
+            <li
+              v-for="match in upcomingMatches"
+              :key="match.id"
+              class="rounded-lg bg-white dark:bg-darkBg px-4 py-3 shadow-sm"
+            >
+              <!-- HEADER -->
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <div class="flex items-center gap-3 min-w-0">
+                  <img
+                    :src="match.img"
+                    alt="event"
+                    class="w-8 h-8 rounded-md object-cover shrink-0"
+                  />
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold truncate">
+                      {{ match.event }}
+                    </p>
+                    <p class="text-xs text-gray-500 truncate">
+                      {{ match.tournament }}
+                    </p>
+                  </div>
+                </div>
+
+                <span class="text-xs text-gray-500 whitespace-nowrap">
+                  {{ match.in }}
+                </span>
+              </div>
+
+              <!-- TEAMS -->
+              <div
+                class="grid grid-cols-[1fr_auto_1fr] items-center py-3 gap-2 text-sm"
+              >
+                <!-- Team A -->
+                <div class="flex items-center justify-end gap-2 min-w-0">
+                  <UIIcon
+                    v-if="getFlagIcon(match.teams?.[0]?.country)"
+                    :icon="getFlagIcon(match.teams?.[0]?.country)"
+                    class="w-5 h-4 shrink-0"
+                  />
+                  <span class="truncate font-medium text-right">
+                    {{ match.teams?.[0]?.name }}
+                  </span>
+                </div>
+
+                <!-- VS -->
+                <span class="text-xs text-gray-400 font-semibold text-center">
+                  vs
+                </span>
+
+                <!-- Team B -->
+                <div class="flex items-center justify-start gap-2 min-w-0">
+                  <span class="truncate font-medium">
+                    {{ match.teams?.[1]?.name }}
+                  </span>
+                  <UIIcon
+                    v-if="getFlagIcon(match.teams?.[1]?.country)"
+                    :icon="getFlagIcon(match.teams?.[1]?.country)"
+                    class="w-5 h-4 shrink-0"
+                  />
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </UICard>
+
+      <UICard
+        class="bg-[#F5F5F7] dark:bg-darkSurface p-4 flex flex-col h-full min-h-[420px] lg:min-h-[520px]"
       >
         <div class="flex items-center justify-between mb-3">
           <h3 class="font-semibold text-lg dark:text-darkText">
@@ -221,7 +306,7 @@
       </UICard>
 
       <UICard
-        class="bg-[#F5F5F7] dark:bg-darkSurface p-4 flex flex-col h-full min-h-0"
+        class="bg-[#F5F5F7] dark:bg-darkSurface p-4 flex flex-col h-full min-h-[420px] lg:min-h-[520px]"
       >
         <div class="flex items-center justify-between mb-3">
           <h3 class="font-semibold text-lg dark:text-darkText">Latest News</h3>
@@ -268,7 +353,7 @@
                 <!-- Description -->
                 <p
                   v-if="news.description"
-                  class="mt-1 text-xs text-gray-600 dark:text-darkSubText line-clamp-2"
+                  class="mt-4 text-xs text-gray-600 dark:text-darkSubText line-clamp-2"
                 >
                   {{ news.description }}
                 </p>
@@ -301,21 +386,31 @@ const getFlagIcon = (country) => {
 };
 
 const { data, pending, error, refresh } = await useFetch("/api/vlr/results", {
-  query: { page },
+  query: { page: 1, limit: 11 },
 });
 
 const topResults = computed(() => {
-  return data.value?.data?.slice(0, 5) ?? [];
+  return data.value?.data?.slice(0, 11) ?? [];
 });
 
 const {
   data: newsData,
   pending: newsPending,
   error: newsError,
-} = await useFetch("/api/vlr/news");
+} = await useFetch("/api/vlr/news", { query: { limit: 5 } });
 
 const latestNews = computed(() => {
-  return newsData.value?.data?.segments?.slice(0, 4) ?? [];
+  return newsData.value?.data?.segments?.slice(0, 5) ?? [];
+});
+
+const {
+  data: matchesData,
+  pending: matchesPending,
+  error: matchesError,
+} = await useFetch("/api/vlr/matches", { query: { page: 1, limit: 5 } });
+
+const upcomingMatches = computed(() => {
+  return matchesData.value?.data?.slice(0, 5) ?? [];
 });
 </script>
 

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const pageNum = Number(page);
   const limitNum = limit ? Number(limit) : null;
 
-  const key = `results-${pageNum}-${limitNum ?? "all"}`;
+  const key = `matches-${pageNum}-${limitNum ?? "all"}`;
   const now = Date.now();
 
   const cached = cache.get(key);
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     return cached.data;
   }
 
-  const data = await $fetch("https://vlr.orlandomm.net/api/v1/results", {
+  const data = await $fetch("https://vlr.orlandomm.net/api/v1/matches", {
     query: { page: pageNum },
   });
 
