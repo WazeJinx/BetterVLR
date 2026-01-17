@@ -17,7 +17,7 @@
     >
       <div
         v-if="showIOSInstructions"
-        class="fixed inset-0 z-50 flex items-end justify-center md:items-center bg-black/30 backdrop-blur-sm"
+        class="fixed left-0 top-0 w-screen h-[100dvh] z-50 flex items-end justify-center md:items-center bg-black/40 backdrop-blur-md pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
         @click="showIOSInstructions = false"
       >
         <Transition
@@ -34,9 +34,18 @@
             @click.stop
           >
             <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-semibold dark:text-darkText">
-                Install BetterVLR
-              </h3>
+              <div class="flex flex-row gap-4">
+                <img
+                  src="/favicon.ico"
+                  alt="favicon"
+                  class="w-6 h-6 rounded-sm"
+                />
+
+                <h3 class="text-lg font-semibold dark:text-darkText">
+                  Install BetterVLR
+                </h3>
+              </div>
+
               <button
                 @click="showIOSInstructions = false"
                 class="p-2 hover:bg-gray-100 dark:hover:bg-darkBg rounded-lg transition"
@@ -55,12 +64,12 @@
                   <span class="font-semibold">1.</span>
                   <div class="flex-1">
                     <span class="inline-flex items-center gap-1 flex-wrap">
-                      Tap the Share button
+                      Tap the
                       <UIIcon
                         icon="material-symbols:ios-share"
-                        class="text-blue-500 text-lg"
+                        class="text-lg px-1"
                       />
-                      at the bottom of Safari
+                      Share button
                     </span>
                   </div>
                 </li>
@@ -68,17 +77,27 @@
                   <span class="font-semibold">2.</span>
                   <div class="flex-1">
                     <span class="inline-flex items-center gap-1 flex-wrap">
-                      Scroll down and tap
+                      Tap the
+                      <UIIcon icon="bi:three-dots" class="text-lg px-1" />
+                      more button
+                    </span>
+                  </div>
+                </li>
+                <li class="flex gap-3">
+                  <span class="font-semibold">3.</span>
+                  <div class="flex-1">
+                    <span class="inline-flex items-center gap-1 flex-wrap">
+                      Tap
                       <UIIcon
                         icon="material-symbols:add-box-outline"
-                        class="text-lg"
+                        class="text-lg px-1"
                       />
                       "Add to Home Screen"
                     </span>
                   </div>
                 </li>
                 <li class="flex gap-3">
-                  <span class="font-semibold">3.</span>
+                  <span class="font-semibold">4.</span>
                   <span>Tap "Add" in the top right corner</span>
                 </li>
               </ol>
@@ -275,7 +294,7 @@ const rotation = ref(0);
 const isCollapsed = ref(false);
 
 const themeIcon = computed(() =>
-  isDark.value ? "material-symbols:light-mode" : "material-symbols:dark-mode"
+  isDark.value ? "material-symbols:light-mode" : "material-symbols:dark-mode",
 );
 
 const navItems = [
@@ -288,7 +307,7 @@ const navItems = [
 const textTransition = computed(() =>
   isCollapsed.value
     ? "opacity-0 -translate-x-2 pointer-events-none"
-    : "opacity-100 translate-x-0"
+    : "opacity-100 translate-x-0",
 );
 
 const pageTitles = {
@@ -340,43 +359,43 @@ const handleInstall = async () => {
 };
 
 const toggleDarkMode = () => {
-  rotation.value += 180;
   isDark.value = !isDark.value;
+  rotation.value += 180;
 
-  if (isDark.value) {
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  }
+  document.documentElement.classList.toggle("dark", isDark.value);
+  localStorage.setItem("theme", isDark.value ? "dark" : "light");
 };
 
 onMounted(() => {
+  // 🔥 SYNC INITIAL DARK MODE STATE
+  const isDarkFromDom =
+    document.documentElement.classList.contains("dark") ||
+    localStorage.getItem("theme") === "dark";
+
+  isDark.value = isDarkFromDom;
+  rotation.value = isDarkFromDom ? 180 : 0;
+
   // Collapse sidebar on small screens
   if (window.innerWidth < 768) {
     isCollapsed.value = true;
   }
 
-  // Check if already installed
+  // Install logic (unchanged)
   if (isInStandaloneMode()) {
     showInstallButton.value = false;
     return;
   }
 
-  // For iOS devices not in standalone mode, show install button
   if (isIOS()) {
     showInstallButton.value = true;
   }
 
-  // Listen for the beforeinstallprompt event (Chrome, Edge, Android)
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
     showInstallButton.value = true;
   });
 
-  // Listen for successful installation
   window.addEventListener("appinstalled", () => {
     showInstallButton.value = false;
     deferredPrompt = null;
