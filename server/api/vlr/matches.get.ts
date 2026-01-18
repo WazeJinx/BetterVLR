@@ -1,3 +1,15 @@
+function fetchWithTimeout(url: string, options: any = {}, timeout = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  return $fetch(url, {
+    ...options,
+    signal: controller.signal,
+  }).finally(() => {
+    clearTimeout(timer);
+  });
+}
+
 const cache = new Map<string, { data: any; expires: number }>();
 
 export default defineEventHandler(async (event) => {
@@ -14,9 +26,22 @@ export default defineEventHandler(async (event) => {
     return cached.data;
   }
 
-  const data = await $fetch("https://vlr.orlandomm.net/api/v1/matches", {
-    query: { page: pageNum },
-  });
+  let data;
+  try {
+    data = await fetchWithTimeout(
+      "https://vlr.orlandomm.net/api/v1/matches",
+      {
+        query: { page: pageNum },
+      },
+      8000,
+    );
+  } catch (err) {
+    console.error("Matches API timeout", err);
+    throw createError({
+      statusCode: 504,
+      statusMessage: "Matches API timeout",
+    });
+  }
 
   const slicedData = limitNum
     ? {

@@ -117,12 +117,25 @@
               </h3>
             </div>
 
-            <div v-show="matchesPending" class="text-sm text-gray-500">
-              Loading matches...
+            <div
+              v-if="matchesPending"
+              class="flex flex-col h-full text-sm text-gray-500 text-center justify-center mb-17"
+            >
+              <UIIcon icon="eos-icons:three-dots-loading" class="text-[80px]" />
+              Loading results...
             </div>
 
-            <div v-show="matchesError" class="text-sm text-red-500">
-              Failed to load matches
+            <div
+              v-show="matchesError"
+              class="flex flex-col h-full text-sm text-red-500 justify-center mb-17"
+            >
+              <div class="flex flex-col justify-center items-center">
+                <UIIcon
+                  icon="fluent:globe-error-16-regular"
+                  class="text-[80px]"
+                />
+                Failed to load matches
+              </div>
             </div>
 
             <div
@@ -208,12 +221,25 @@
               </h3>
             </div>
 
-            <div v-if="pending" class="text-sm text-gray-500">
+            <div
+              v-if="pending"
+              class="flex flex-col h-full text-sm text-gray-500 text-center justify-center mb-17"
+            >
+              <UIIcon icon="eos-icons:three-dots-loading" class="text-[80px]" />
               Loading results...
             </div>
 
-            <div v-else-if="error" class="text-sm text-red-500">
-              Failed to load results
+            <div
+              v-else-if="error"
+              class="flex flex-col h-full text-sm text-red-500 justify-center mb-17"
+            >
+              <div class="flex flex-col justify-center items-center">
+                <UIIcon
+                  icon="fluent:globe-error-16-regular"
+                  class="text-[80px]"
+                />
+                Failed to load results
+              </div>
             </div>
 
             <div
@@ -335,12 +361,25 @@
               </h3>
             </div>
 
-            <div v-if="newsPending" class="text-sm text-gray-500">
+            <div
+              v-if="newsPending"
+              class="flex flex-col h-full text-sm text-gray-500 text-center justify-center mb-17"
+            >
+              <UIIcon icon="eos-icons:three-dots-loading" class="text-[80px]" />
               Loading news...
             </div>
 
-            <div v-else-if="newsError" class="text-sm text-red-500">
-              Failed to load news
+            <div
+              v-else-if="newsError"
+              class="flex flex-col h-full text-sm text-red-500 justify-center mb-17"
+            >
+              <div class="flex flex-col justify-center items-center">
+                <UIIcon
+                  icon="fluent:globe-error-16-regular"
+                  class="text-[80px]"
+                />
+                Failed to load news
+              </div>
             </div>
             <div
               v-else
@@ -458,8 +497,10 @@ const getFlagIcon = (country) => {
   return `flag:${country}-4x3`;
 };
 
-const { data, pending, error, refresh } = await useFetch("/api/vlr/results", {
+const { data, pending, error, refresh } = useFetch("/api/vlr/results", {
   query: { page: 1, limit: 11 },
+  server: false,
+  timeout: 7000,
 });
 
 const topResults = computed(() => {
@@ -470,7 +511,11 @@ const {
   data: newsData,
   pending: newsPending,
   error: newsError,
-} = await useFetch("/api/vlr/news", { query: { limit: 5 } });
+} = useFetch("/api/vlr/news", {
+  query: { limit: 5 },
+  server: false,
+  timeout: 7000,
+});
 
 const latestNews = computed(() => {
   return newsData.value?.data?.segments?.slice(0, 5) ?? [];
@@ -480,7 +525,11 @@ const {
   data: matchesData,
   pending: matchesPending,
   error: matchesError,
-} = await useFetch("/api/vlr/matches", { query: { page: 1, limit: 5 } });
+} = await useFetch("/api/vlr/matches", {
+  query: { page: 1, limit: 5 },
+  server: false,
+  timeout: 7000,
+});
 
 const upcomingMatches = computed(() => {
   return matchesData.value?.data?.slice(0, 5) ?? [];
