@@ -103,10 +103,10 @@ export default defineNuxtConfig({
     workbox: {
       navigateFallback: "/",
     },
-    devOptions: {
-      enabled: true,
-      type: "module",
-    },
+    // devOptions: {
+    //   enabled: true,
+    //   type: "module",
+    // },
   },
 
   app: {
